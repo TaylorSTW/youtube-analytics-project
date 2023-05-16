@@ -1,23 +1,72 @@
 import json
+import os
+
 from googleapiclient.discovery import build
-
-API_KEY = "AIzaSyCJz5g7Zq8Q4KHyXe8wcWWAnE8wLz5aHpc"
-
-# создать специальный объект для работы с API
-youtube = build('youtube', 'v3', developerKey=API_KEY)
-
-
-def printj(dict_to_print: dict) -> None:
-    """Выводит словарь в json-подобном удобном формате с отступами"""
-    print(json.dumps(dict_to_print, indent=2, ensure_ascii=False))
 
 
 class Channel:
     """Класс для ютуб-канала"""
+    # Define API key for YouTube account
+    api_key = "AIzaSyCJz5g7Zq8Q4KHyXe8wcWWAnE8wLz5aHpc"
+    # Create special object to work with API
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
+    @classmethod
+    def get_service(cls):
+        """Get object for YouTube API service"""
+        return cls.youtube
 
     def __init__(self, channel_id: str) -> None:
-        self.channel_id = channel_id
+        """
+        Экземпляр инициализируется id канала.
+        Дальше все данные будут подтягиваться по API.
+        """
+        # Retrieve information about channel as JSON object
+        self.channel = Channel.youtube.channels(). \
+            list(id=channel_id, part='snippet,statistics').execute()
+        # Retrieve channel id
+        self.__channel_id = channel_id
+        # Retrieve channel title
+        self.title = self. \
+            channel['items'][0]['snippet']['title']
+        # Retrieve channel description
+        self.description = self. \
+            channel['items'][0]['snippet']['description']
+        # Retrieve channel URL
+        self.url = "https://www.youtube.com/channel/" + channel_id
+        # Retrieve number of subscribers
+        self.subs_count = self. \
+            channel['items'][0]['statistics']['subscriberCount']
+        # Retrieve total number of videos
+        self.video_count = self. \
+            channel['items'][0]['statistics']['videoCount']
+        # Retrieve total number of videos
+        self.view_count = self. \
+            channel['items'][0]['statistics']['viewCount']
 
     def print_info(self) -> None:
-        channel = youtube.channels().list(id=self.channel_id, part='snippet,statistics').execute()
-        printj(channel)
+        """Return dictionary in json-like comfortable format with indents"""
+        print(json.dumps(self.channel, indent=2, ensure_ascii=False))
+
+    @property
+    def channel_id(self):
+        """
+        Getter for attribute "channel_id"
+        """
+        return self.__channel_id
+
+    def to_json(self, filename):
+        """
+        Record class attributes into JSON file
+        """
+        with open(filename, 'w') as file:
+            dict_ = {
+                'channel_id': self.channel_id,
+                'title': self.title,
+                'description': self.description,
+                'url': self.url,
+                'subs_count': self.subs_count,
+                'video_count': self.video_count,
+                'view_count': self.view_count
+            }
+            json.dump(dict_, file, ensure_ascii=False)

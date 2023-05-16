@@ -44,6 +44,13 @@ class Channel:
         self.view_count = self. \
             channel['items'][0]['statistics']['viewCount']
 
+    def __str__(self) -> str:
+        """
+        Provides a string representation of class object for user such as:
+        channel
+        """
+        return f"{self.title} ({self.url})"
+
     def print_info(self) -> None:
         """Return dictionary in json-like comfortable format with indents"""
         print(json.dumps(self.channel, indent=2, ensure_ascii=False))
@@ -70,3 +77,69 @@ class Channel:
                 'view_count': self.view_count
             }
             json.dump(dict_, file, ensure_ascii=False)
+
+    def __add__(self, other) -> int:
+        """
+        Returns the summation of the subscribers of two channels
+        """
+        if type(other) == Channel:
+            return int(self.subs_count) + int(other.subs_count)
+        else:
+            raise ValueError("Must be <Channel> object")
+
+    def __sub__(self, other) -> int:
+        """
+        Returns the subtraction the number of subscribers of other channel
+        from this channel
+        """
+        if type(other) == Channel:
+            return int(self.subs_count) - int(other.subs_count)
+        else:
+            raise ValueError("Must be <Channel> object")
+
+    def __eq__(self, other) -> bool:
+        """
+        Checks if numbers of subscribers between two channels are equal
+        """
+        if type(other) == Channel:
+            return self.subs_count == other.subs_count
+        else:
+            raise ValueError("Must be <Channel> object")
+
+    def __lt__(self, other) -> bool:
+        """
+        Checks if number of subscribers of this channel is less than other
+        """
+        if type(other) == Channel:
+            return int(self.subs_count) < int(other.subs_count)
+        else:
+            raise ValueError("Must be <Channel> object")
+
+    def __le__(self, other) -> bool:
+        """
+        Checks if number of subscribers of this channel is less than other
+        or equal
+        """
+        if type(other) == Channel:
+            return int(self.subs_count) <= int(other.subs_count)
+        else:
+            raise ValueError("Must be <Channel> object")
+
+    def __gt__(self, other) -> bool:
+        """
+        Checks if number of subscribers of this channel is more than other
+        """
+        if type(other) == Channel:
+            return int(self.subs_count) > int(other.subs_count)
+        else:
+            raise ValueError("Must be <Channel> object")
+
+    def __ge__(self, other) -> bool:
+        """
+        Checks if number of subscribers of this channel is more than other
+        or equal
+        """
+        if type(other) == Channel:
+            return int(self.subs_count) >= int(other.subs_count)
+        else:
+            raise ValueError("Must be <Channel> object")
